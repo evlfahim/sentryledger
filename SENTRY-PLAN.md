@@ -27,7 +27,7 @@ Task: Personal finance tracker that imports bank CSV files, auto-categorizes spe
 TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, Vitest
 
 ## Steps
-- [ ] 1. Scaffold Tauri project with Next.js, configure Vitest, and verify dev server and build pipeline.
+- [x] 1. Scaffold Tauri project with Next.js, configure Vitest, and verify dev server and build pipeline.
 - [ ] 2. Define Prisma schema for accounts, transactions, rules, and budgets, then run migration.
 - [ ] 3. Implement CSV parser with auto-detection of bank formats and column mapping wizard.
 - [ ] 4. Build import page with transaction preview, duplicate checking, and commit action.
