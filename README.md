@@ -98,14 +98,30 @@ sentry-ledger/
 │   ├── app/              # Next.js App Router pages
 │   │   ├── layout.tsx    # Root layout with Tailwind theme
 │   │   ├── page.tsx      # Home page
+│   │   ├── import/       # Import page with CSV upload, mapping, preview
+│   │   │   └── page.tsx  # Full import flow UI
+│   │   ├── api/          # API routes
+│   │   │   └── import/   # Transaction import API
+│   │   │       └── route.ts
 │   │   └── globals.css   # Tailwind CSS with dark mode
 │   ├── components/       # Reusable UI components
 │   └── lib/              # Shared utilities
+│       ├── csv/          # CSV parser with bank profile detection
+│       │   ├── types.ts  # Core type definitions
+│       │   ├── bank-profiles.ts  # 10 known bank formats
+│       │   ├── parser.ts # Date/amount parsing, column mapping
+│       │   └── index.ts  # Barrel export
+│       └── import/       # Import database utilities
+│           └── db.ts     # SQLite operations (server-only)
 ├── src-tauri/            # Tauri Rust backend
 │   ├── src/              # Rust source code
 │   ├── tauri.conf.json   # Tauri configuration
 │   └── capabilities/     # App security capabilities
 ├── tests/                # Vitest test files
+│   ├── csv-parser.test.ts  # CSV parser tests (47 tests)
+│   ├── import-db.test.ts   # Import DB tests (20 tests)
+│   ├── setup.ts            # Test setup
+│   └── setup.test.ts       # Setup verification
 ├── public/               # Static assets
 ├── package.json
 ├── tsconfig.json
