@@ -288,8 +288,7 @@ export function importTransactions(
             tx.description,
             tx.amount,
             tx.category || null,
-            isBill,
-            1
+            isBill
           );
           duplicates++;
         } else {
