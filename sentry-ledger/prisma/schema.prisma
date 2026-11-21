@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   // "checking" | "savings" | "credit" | "cash" | "investment" | "other"
+  balance   Float    @default(0)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([type])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  accountId   String
+  date        DateTime
+  description String
+  amount      Float
+  category    String?  // auto-categorized or manually set
+  ruleId      String?  // which rule categorized it (nullable for manual)
+  isBill      Boolean  @default(false)
+  isDuplicate Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  account    Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  rule       Rule?      @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([accountId, date])
+  @@index([category])
+  @@index([isBill])
+  @@index([isDuplicate])
+}
+
+model Rule {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  regex       String   // regex pattern to match against transaction description
+  category    String   // target category
+  priority    Int      @default(0) // higher = applied first
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([priority])
+  @@index([isActive])
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  name       String
+  categoryId String   // category this budget tracks
+  amount     Float    // monthly budget limit
+  period     String   // "weekly" | "monthly" | "yearly"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([categoryId])
+}

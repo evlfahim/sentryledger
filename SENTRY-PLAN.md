@@ -28,7 +28,7 @@ TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, 
 
 ## Steps
 - [x] 1. Scaffold Tauri project with Next.js, configure Vitest, and verify dev server and build pipeline.
-- [ ] 2. Define Prisma schema for accounts, transactions, rules, and budgets, then run migration.
+- [x] 2. Define Prisma schema for accounts, transactions, rules, and budgets, then run migration.
 - [ ] 3. Implement CSV parser with auto-detection of bank formats and column mapping wizard.
 - [ ] 4. Build import page with transaction preview, duplicate checking, and commit action.
 - [ ] 5. Create rule engine that applies categorized rules to transactions based on description and amount.
