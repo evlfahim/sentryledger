@@ -802,14 +802,96 @@ export default function ImportPage() {
     setError(null);
   }, []);
 
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const handleExportCsv = useCallback(async () => {
+    try {
+      setExporting("csv");
+      const res = await fetch("/api/export/csv");
+      if (!res.ok) throw new Error("Failed to export CSV");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const disposition = res.headers.get("content-disposition");
+      a.download = disposition?.split("filename=")[1]?.replace(/"/g, "") || "transactions.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("CSV export error:", err);
+      setError(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setExporting(null);
+    }
+  }, []);
+
+  const handleExportPdf = useCallback(async () => {
+    try {
+      setExporting("pdf");
+      const res = await fetch("/api/export/pdf");
+      if (!res.ok) throw new Error("Failed to export PDF");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const disposition = res.headers.get("content-disposition");
+      a.download = disposition?.split("filename=")[1]?.replace(/"/g, "") || "report.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("PDF export error:", err);
+      setError(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setExporting(null);
+    }
+  }, []);
+
   return (
     <AppLayout>
       <main className="container mx-auto px-4 py-6 md:py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">Import Transactions</h1>
-          <p className="text-muted-foreground text-sm">
-            Import bank CSV files and categorize your spending
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">Import Transactions</h1>
+            <p className="text-muted-foreground text-sm">
+              Import bank CSV files and categorize your spending
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCsv}
+              disabled={exporting !== null}
+              className="px-3 md:px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 disabled:opacity-50"
+              title="Export all transactions as CSV"
+            >
+              {exporting === "csv" ? (
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
+            <button
+              onClick={handleExportPdf}
+              disabled={exporting !== null}
+              className="px-3 md:px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 disabled:opacity-50"
+              title="Export dashboard as PDF"
+            >
+              {exporting === "pdf" ? (
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              )}
+              <span className="hidden sm:inline">Export PDF</span>
+            </button>
+          </div>
         </div>
 
         <StepIndicator currentStep={state.step} />

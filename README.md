@@ -11,7 +11,7 @@ A secure, offline-first desktop finance tracker that auto-categorizes bank CSVs 
 - **Safe-to-spend calculator** based on income, bills, and savings goals
 - **Duplicate detection** and transaction linking between accounts
 - **Encrypted local SQLite** database with backup/restore
-- **Export** to CSV and PDF reports
+- **Export** transactions as CSV or the full dashboard as PDF reports
 - **Dark mode** and responsive layout
 - **One-click desktop installer** for Windows, macOS, and Linux
 
@@ -109,7 +109,14 @@ sentry-ledger/
 │   │   │   │   └── route.ts
 │   │   │   ├── rules/    # Rule management API
 │   │   │   │   └── route.ts
-│   │   │   └── budgets/  # Budget management API
+│   │   │   ├── budgets/  # Budget management API
+│   │   │   │   └── route.ts
+│   │   │   ├── export/   # Export API routes
+│   │   │   │   ├── csv/  # CSV export
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── pdf/  # PDF export
+│   │   │   │       └── route.ts
+│   │   │   └── dashboard/ # Dashboard data API
 │   │   │       └── route.ts
 │   │   └── globals.css   # Tailwind CSS with dark mode
 │   ├── components/       # Reusable UI components
@@ -174,7 +181,16 @@ The app runs entirely offline. All data is stored in a local SQLite database. No
 
 ### Pages
 
-- **`/`** — Home page with navigation to Import, Rules, and Budgets
+- **`/safe-to-spend`** — Safe-to-spend calculator: view available spending, daily breakdown, and savings goals
+
+### Export
+
+Export functionality is available from the Dashboard and Import pages:
+
+- **CSV Export** — Download all transactions as a CSV file with columns: Date, Description, Amount, Category, Is Bill, Is Duplicate, Account
+- **PDF Export** — Download a comprehensive financial report as PDF including summary, spending by category, cash flow, monthly trends, recent transactions, accounts, budgets, and savings goals
+
+Both exports are triggered via buttons in the page headers and download directly to the user's browser.
 - **`/import`** — CSV import flow: upload → column mapping → preview → commit
 - **`/rules`** — Rule management: create, edit, reorder, test, and delete categorization rules
 - **`/budgets`** — Budget management: create budgets by category, track spending progress, view alerts for over-budget categories
@@ -205,6 +221,8 @@ The budget system tracks spending by category against user-defined limits:
 | `/api/budgets` | DELETE | Delete a budget |
 | `/api/budgets?action=calculate` | GET | Calculate budget progress across all budgets |
 | `/api/budgets?action=categories` | GET | Get unique categories |
+| `/api/export/csv` | GET | Export all transactions as CSV |
+| `/api/export/pdf` | GET | Export dashboard as PDF report |
 
 ## License
 
