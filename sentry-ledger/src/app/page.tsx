@@ -11,6 +11,12 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-6">
             <Link
+              href="/dashboard"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
               href="/import"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -44,16 +50,16 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/import"
+              href="/dashboard"
               className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors w-full sm:w-auto text-center"
             >
-              Import Transactions
+              View Dashboard
             </Link>
             <Link
-              href="/rules"
+              href="/import"
               className="px-6 py-3 border border-border rounded-lg font-medium hover:bg-muted transition-colors w-full sm:w-auto text-center"
             >
-              Manage Rules
+              Import Transactions
             </Link>
           </div>
         </div>
