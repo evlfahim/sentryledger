@@ -35,7 +35,7 @@ TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, 
 - [x] 6. Develop rule management UI allowing users to add, edit, reorder, and test rules.
 - [x] 7. Implement budget creation form and calculate remaining balance against imported transactions.
 - [x] 8. Add dashboard with Recharts visualizations for monthly spending breakdown and trends.
-- [ ] 9. Integrate safe-to-spend logic that subtracts bills and goals from available income.
+- [x] 9. Integrate safe-to-spend logic that subtracts bills and goals from available income.
 - [ ] 10. Polish UI with Shadcn components, dark mode toggle, and responsive design.
 - [ ] 11. Add export functionality to download transactions as CSV and dashboard as PDF.
 - [ ] 12. Write unit tests for parser, rule engine, and budget calculations, then run suite.

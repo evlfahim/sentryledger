@@ -90,6 +90,18 @@ function initSchema(db: Database.Database): void {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS savings_goals (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      target_amount REAL NOT NULL DEFAULT 0,
+      current_amount REAL NOT NULL DEFAULT 0,
+      monthly_contribution REAL NOT NULL DEFAULT 0,
+      deadline TEXT,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_transactions_account_date ON transactions(account_id, date);
     CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
     CREATE INDEX IF NOT EXISTS idx_transactions_is_bill ON transactions(is_bill);
@@ -379,6 +391,7 @@ export function clearAll(): void {
   getDb().exec("DELETE FROM transactions");
   getDb().exec("DELETE FROM rules");
   getDb().exec("DELETE FROM budgets");
+  getDb().exec("DELETE FROM savings_goals");
   getDb().exec("DELETE FROM accounts");
 }
 
@@ -680,4 +693,136 @@ export function deleteBudget(id: string): void {
  */
 export function clearBudgets(): void {
   getDb().exec("DELETE FROM budgets");
+}
+
+// ─── Savings Goals Operations ─────────────────────────────────────────────────
+
+export interface SavingsGoalRow {
+  id: string;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  monthly_contribution: number;
+  deadline: string | null;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Get all savings goals, ordered by name.
+ */
+export function getSavingsGoals(): SavingsGoalRow[] {
+  const stmt = getDb().prepare(
+    "SELECT * FROM savings_goals ORDER BY name"
+  );
+  return stmt.all() as SavingsGoalRow[];
+}
+
+/**
+ * Get a single savings goal by ID.
+ */
+export function getSavingsGoal(id: string): SavingsGoalRow | undefined {
+  const stmt = getDb().prepare("SELECT * FROM savings_goals WHERE id = ?");
+  return stmt.get(id) as SavingsGoalRow | undefined;
+}
+
+/**
+ * Get active savings goals only.
+ */
+export function getActiveSavingsGoals(): SavingsGoalRow[] {
+  const stmt = getDb().prepare(
+    "SELECT * FROM savings_goals WHERE is_active = 1 ORDER BY name"
+  );
+  return stmt.all() as SavingsGoalRow[];
+}
+
+/**
+ * Create a new savings goal.
+ */
+export function createSavingsGoal(
+  name: string,
+  targetAmount: number,
+  currentAmount: number = 0,
+  monthlyContribution: number = 0,
+  deadline: string | null = null,
+  isActive: boolean = true
+): string {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const stmt = getDb().prepare(
+    `INSERT INTO savings_goals (id, name, target_amount, current_amount, monthly_contribution, deadline, is_active, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  stmt.run(id, name, targetAmount, currentAmount, monthlyContribution, deadline, isActive ? 1 : 0, now, now);
+  return id;
+}
+
+/**
+ * Update an existing savings goal.
+ */
+export function updateSavingsGoal(
+  id: string,
+  updates: {
+    name?: string;
+    targetAmount?: number;
+    currentAmount?: number;
+    monthlyContribution?: number;
+    deadline?: string | null;
+    isActive?: boolean;
+  }
+): void {
+  const fields: string[] = [];
+  const values: any[] = [];
+
+  if (updates.name !== undefined) {
+    fields.push("name = ?");
+    values.push(updates.name);
+  }
+  if (updates.targetAmount !== undefined) {
+    fields.push("target_amount = ?");
+    values.push(updates.targetAmount);
+  }
+  if (updates.currentAmount !== undefined) {
+    fields.push("current_amount = ?");
+    values.push(updates.currentAmount);
+  }
+  if (updates.monthlyContribution !== undefined) {
+    fields.push("monthly_contribution = ?");
+    values.push(updates.monthlyContribution);
+  }
+  if (updates.deadline !== undefined) {
+    fields.push("deadline = ?");
+    values.push(updates.deadline);
+  }
+  if (updates.isActive !== undefined) {
+    fields.push("is_active = ?");
+    values.push(updates.isActive ? 1 : 0);
+  }
+
+  if (fields.length === 0) return;
+
+  fields.push("updated_at = ?");
+  values.push(new Date().toISOString());
+  values.push(id);
+
+  const stmt = getDb().prepare(
+    `UPDATE savings_goals SET ${fields.join(", ")} WHERE id = ?`
+  );
+  stmt.run(...values);
+}
+
+/**
+ * Delete a savings goal by ID.
+ */
+export function deleteSavingsGoal(id: string): void {
+  const stmt = getDb().prepare("DELETE FROM savings_goals WHERE id = ?");
+  stmt.run(id);
+}
+
+/**
+ * Clear all savings goals (for testing).
+ */
+export function clearSavingsGoals(): void {
+  getDb().exec("DELETE FROM savings_goals");
 }
