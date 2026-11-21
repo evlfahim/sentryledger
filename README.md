@@ -68,17 +68,25 @@ Build the production web app:
 npm run build
 ```
 
-Build the desktop binaries (Windows, macOS, Linux):
+Build the desktop binaries (Linux natively; Windows/macOS require platform-specific toolchains):
 
 ```bash
 npm run tauri build
 ```
 
-Output binaries are placed in `src-tauri/target/release/bundle/`.
+Output binaries are placed in `src-tauri/target/release/bundle/`:
+
+| Format | File | Size |
+|--------|------|------|
+| **deb** | `SentryLedger_0.1.0_amd64.deb` | ~5.8 MiB |
+| **rpm** | `SentryLedger-0.1.0-1.x86_64.rpm` | ~5.8 MiB |
+| **AppImage** | `SentryLedger_0.1.0_amd64.AppImage` | ~97 MiB |
+
+> **Cross-compilation:** Building Windows (`.exe`) or macOS (`.dmg`) binaries requires a native Windows or macOS build environment respectively, or cross-compilation toolchains (mingw-w64 for Windows, macOS SDK for macOS). On Linux, only Linux bundles are produced.
 
 ### Testing
 
-Run the test suite:
+Run the test suite (315 tests across 11 test files):
 
 ```bash
 npm run test

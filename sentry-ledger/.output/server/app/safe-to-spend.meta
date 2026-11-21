@@ -1,0 +1,34 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/safe-to-spend/layout,_N_T_/safe-to-spend/page,_N_T_/safe-to-spend"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/safe-to-spend/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 64,
+    "slots": {
+      "children": {
+        "hints": 96,
+        "slots": {
+          "children": {
+            "hints": 160,
+            "slots": null
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/4cd2a8829def8e15fcdbbdf6d7efb6e891a3115c192095a280f99ca99fdd3a2d/$/safe-to-spend",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/safe-to-spend/page"
+    },
+    "isFallback": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/budgets/route": "/api/budgets",
+  "/api/dashboard/route": "/api/dashboard",
+  "/api/export/csv/route": "/api/export/csv",
+  "/api/export/pdf/route": "/api/export/pdf",
+  "/api/import/route": "/api/import",
+  "/api/rules/route": "/api/rules",
+  "/api/safe-to-spend/route": "/api/safe-to-spend",
+  "/budgets/page": "/budgets",
+  "/dashboard/page": "/dashboard",
+  "/import/page": "/import",
+  "/page": "/",
+  "/rules/page": "/rules",
+  "/safe-to-spend/page": "/safe-to-spend"
+}

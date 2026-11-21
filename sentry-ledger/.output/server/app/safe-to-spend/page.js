@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/safe-to-spend/page.js")
+R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_00xcmhqc1ie-g.js")
+R.c("server/chunks/ssr/[root-of-the-server]__18z1eviwc8lhm._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__2123l7b0pd8dc._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1i9lh7wv9x2jw._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_0wpq8j32_ibz4._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0symwr9mbf-fh.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0xky89qu.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892nagajq.js")
+R.c("server/chunks/ssr/_next-internal_server_app_safe-to-spend_page_actions_16-yqps9do97r.js")
+R.m(39910)
+module.exports=R.m(39910).exports

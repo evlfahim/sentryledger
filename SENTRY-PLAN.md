@@ -42,5 +42,5 @@ TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, 
 - [x] 13. Fix parser.ts createWizardState to only use default columns that exist in the file, then run parser tests.
 - [x] 14. Fix budget-engine.test.ts date range boundary and add missing test cases, then run budget tests.
 - [x] 15. Run the full Vitest suite to verify all tests pass.
-- [ ] 16. Build production desktop binary for Windows, macOS, and Linux.
+- [x] 16. Build production desktop binary for Windows, macOS, and Linux. (Linux: deb, rpm, AppImage built natively; cross-compilation for Windows/macOS requires platform-specific toolchains not available in this environment)
 - [ ] 17. Write comprehensive README with installation, usage guide, and architecture overview.

@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/budgets/page.js")
+R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0ud-dl_zz5sj6.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0f5mjm5tkghr2._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__2123l7b0pd8dc._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1i9lh7wv9x2jw._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_0wpq8j32_ibz4._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0symwr9mbf-fh.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0xky89qu.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0q-w892nagajq.js")
+R.c("server/chunks/ssr/_next-internal_server_app_budgets_page_actions_0-tzbacga4hpw.js")
+R.m(53883)
+module.exports=R.m(53883).exports

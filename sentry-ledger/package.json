@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:tauri": "next build && rm -rf .output && mkdir -p .output && cp -r .next/server .output/ && cp -r .next/static .output/ && cp .next/BUILD_ID .output/ && cp .next/build-manifest.json .output/ && cp .next/app-path-routes-manifest.json .output/ && cp .next/prerender-manifest.json .output/ && cp .next/export-marker.json .output/ && cp .next/images-manifest.json .output/ && cp .next/required-server-files.js .output/ && cp .next/required-server-files.json .output/ && cp .next/fallback-build-manifest.json .output/ && cp .next/next-minimal-server.js.nft.json .output/ && cp .next/next-server.js.nft.json .output/ && cp .next/package.json .output/",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
