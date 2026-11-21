@@ -2,7 +2,7 @@
  * Unit tests for the budget calculation engine.
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   calculateOverallBudget,
   calculateBudgetProgress,
@@ -231,19 +231,76 @@ describe("calculateBudgetProgress", () => {
       makeTransaction({ amount: -100, category: "Groceries" }),
     ];
 
-    // Use a custom date range that includes the current date
-    const customStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const customEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    // Use a custom date range that covers the whole current month
+    const result = calculateBudgetProgress(
+      budget,
+      transactions,
+      "custom",
+      currentMonthStart,
+      currentMonthEnd
+    );
+
+    expect(result.categorySummary.spent).toBe(100);
+  });
+
+  it("should exclude transactions outside a custom date range", () => {
+    const budget = makeBudget({ category_id: "Groceries", amount: 500 });
+    const transactions: TransactionRow[] = [
+      makeTransaction({ id: "t1", amount: -40, category: "Groceries", date: "2024-03-10T12:00:00.000Z" }),
+      makeTransaction({ id: "t2", amount: -60, category: "Groceries", date: "2024-04-10T12:00:00.000Z" }),
+    ];
 
     const result = calculateBudgetProgress(
       budget,
       transactions,
       "custom",
-      customStart,
-      customEnd
+      new Date("2024-03-01T00:00:00.000Z"),
+      new Date("2024-03-31T23:59:59.999Z")
     );
 
-    expect(result.categorySummary.spent).toBe(100);
+    expect(result.categorySummary.spent).toBe(40);
+    expect(result.categorySummary.transactionCount).toBe(1);
+  });
+
+  it("should exclude transactions from other months in the current period", () => {
+    const budget = makeBudget({ category_id: "Groceries", amount: 500 });
+    const lastYear = new Date(now.getFullYear() - 1, now.getMonth(), 15);
+    const transactions: TransactionRow[] = [
+      makeTransaction({ id: "t1", amount: -30, category: "Groceries" }),
+      makeTransaction({ id: "t2", amount: -70, category: "Groceries", date: lastYear.toISOString() }),
+    ];
+
+    const result = calculateBudgetProgress(budget, transactions);
+
+    expect(result.categorySummary.spent).toBe(30);
+  });
+
+  it("should treat exactly 80% as a warning and 100% as not over", () => {
+    const budget = makeBudget({ category_id: "Groceries", amount: 100 });
+
+    const at80 = calculateBudgetProgress(budget, [
+      makeTransaction({ amount: -80, category: "Groceries" }),
+    ]);
+    expect(at80.alertLevel).toBe("warning");
+
+    const at100 = calculateBudgetProgress(budget, [
+      makeTransaction({ amount: -100, category: "Groceries" }),
+    ]);
+    expect(at100.categorySummary.isOver).toBe(false);
+    expect(at100.categorySummary.remaining).toBe(0);
+    expect(at100.alertLevel).toBe("warning");
+  });
+
+  it("should round spending to cents", () => {
+    const budget = makeBudget({ category_id: "Groceries", amount: 500 });
+    const transactions: TransactionRow[] = [
+      makeTransaction({ id: "t1", amount: -0.1, category: "Groceries" }),
+      makeTransaction({ id: "t2", amount: -0.2, category: "Groceries" }),
+    ];
+
+    const result = calculateBudgetProgress(budget, transactions);
+
+    expect(result.categorySummary.spent).toBe(0.3);
   });
 });
 

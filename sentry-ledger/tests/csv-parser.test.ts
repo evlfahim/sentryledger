@@ -228,6 +228,32 @@ describe("createWizardState", () => {
     expect(wizard.mapping.amount).toBe("Withdrawal");
   });
 
+  it("should not map profile defaults to columns missing from the file", () => {
+    // Detected as Chase (Transaction Date), but this file uses Memo/Debit
+    const csv = "Transaction Date,Memo,Debit\n2024-01-15,Coffee Shop,-4.50";
+    const csvFile = readCsvFile(csv, "test.csv");
+    const wizard = createWizardState(csvFile);
+
+    expect(wizard.mapping.date).toBe("Transaction Date");
+    expect(wizard.mapping.description).toBe("Memo");
+    expect(wizard.mapping.amount).toBe("Debit");
+    expect(wizard.preview).toHaveLength(1);
+    expect(wizard.preview[0].description).toBe("Coffee Shop");
+    expect(wizard.preview[0].amountValue).toBe(-4.5);
+    expect(wizard.warnings).toHaveLength(0);
+  });
+
+  it("should leave fields unmapped when no column matches", () => {
+    const csv = "Date,Foo,Bar\n2024-01-15,x,y";
+    const csvFile = readCsvFile(csv, "test.csv");
+    const wizard = createWizardState(csvFile);
+
+    expect(wizard.mapping.date).toBe("Date");
+    expect(wizard.mapping.description).toBeUndefined();
+    expect(wizard.mapping.amount).toBeUndefined();
+    expect(wizard.preview).toHaveLength(0);
+  });
+
   it("should generate warnings for unparseable dates", () => {
     const csv = "Date,Description,Amount\ninvalid,Grocery,-50.00";
     const csvFile = readCsvFile(csv, "test.csv");

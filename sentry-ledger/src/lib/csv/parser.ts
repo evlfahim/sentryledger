@@ -245,10 +245,16 @@ export function createWizardState(
   // Detect bank profile
   const detectedProfile = detectBankProfile(csvFile.columns, BANK_PROFILES);
 
-  // Start with default mapping from profile (if detected)
-  let mapping: ColumnMapping = detectedProfile
-    ? { ...detectedProfile.defaultMapping }
-    : {};
+  // Start with default mapping from profile (if detected), keeping only
+  // columns that actually exist in this file
+  const mapping: ColumnMapping = {};
+  if (detectedProfile) {
+    for (const [target, column] of Object.entries(detectedProfile.defaultMapping)) {
+      if (column && csvFile.columns.includes(column)) {
+        mapping[target as TargetField] = column;
+      }
+    }
+  }
 
   // Auto-map columns if not already set
   for (const target of ["date" as TargetField, "description" as TargetField, "amount" as TargetField]) {

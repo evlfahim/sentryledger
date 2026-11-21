@@ -9,7 +9,10 @@ export default defineConfig({
     globals: true,
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     setupFiles: ["tests/setup.ts"],
-    // Run tests sequentially to avoid race conditions on the shared SQLite DB
+    // Run tests sequentially to avoid race conditions on the shared SQLite DB.
+    // Several test files call clearAll() on prisma/import.db, so files must
+    // not run in parallel workers either.
+    fileParallelism: false,
     sequence: {
       concurrent: false,
     },
