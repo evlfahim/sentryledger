@@ -239,6 +239,7 @@ export function importTransactions(
     description: string;
     amount: number;
     category?: string;
+    is_bill?: number;
   }[]
 ): { imported: number; duplicates: number; failed: number } {
   if (!accountExists(accountId)) {
@@ -248,12 +249,12 @@ export function importTransactions(
   const db = getDb();
   const insertStmt = db.prepare(
     `INSERT INTO transactions (id, account_id, date, description, amount, category, is_bill, is_duplicate, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, 0, 0, datetime('now'), datetime('now'))`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
   );
 
   const dupStmt = db.prepare(
     `INSERT INTO transactions (id, account_id, date, description, amount, category, is_bill, is_duplicate, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, 0, 1, datetime('now'), datetime('now'))`
+     VALUES (?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`
   );
 
   const checkDup = db.prepare(
@@ -274,6 +275,7 @@ export function importTransactions(
     for (const tx of txs) {
       try {
         const dateStr = new Date(tx.date).toISOString().split("T")[0];
+        const isBill = tx.is_bill ?? 0;
 
         // Check for existing duplicate
         const existing = checkDup.get(dateStr, tx.description, tx.amount, accountId) as { id: string } | undefined;
@@ -285,7 +287,9 @@ export function importTransactions(
             dateStr,
             tx.description,
             tx.amount,
-            tx.category || null
+            tx.category || null,
+            isBill,
+            1
           );
           duplicates++;
         } else {
@@ -295,7 +299,9 @@ export function importTransactions(
             dateStr,
             tx.description,
             tx.amount,
-            tx.category || null
+            tx.category || null,
+            isBill,
+            0
           );
           imported++;
         }
