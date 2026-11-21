@@ -9,6 +9,10 @@ export default defineConfig({
     globals: true,
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     setupFiles: ["tests/setup.ts"],
+    // Run tests sequentially to avoid race conditions on the shared SQLite DB
+    sequence: {
+      concurrent: false,
+    },
   },
   resolve: {
     alias: {
