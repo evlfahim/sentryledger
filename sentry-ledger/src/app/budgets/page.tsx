@@ -10,6 +10,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
+import { AppLayout } from "@/app/components/ui";
 import {
   formatCurrency,
   formatPercent,
@@ -695,32 +696,13 @@ export default function BudgetsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">SentryLedger</h1>
-          <div className="flex items-center gap-6">
-            <a href="/import" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Import
-            </a>
-            <a href="/rules" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Rules
-            </a>
-            <a href="/budgets" className="text-sm font-medium text-primary">
-              Budgets
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main content */}
-      <main className="container mx-auto px-4 py-8">
+    <AppLayout>
+      <main className="container mx-auto px-4 py-6 md:py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Budget Management</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold mb-2">Budget Management</h1>
+              <p className="text-muted-foreground text-sm">
                 Set spending limits and track your progress against imported transactions.
               </p>
             </div>
@@ -729,7 +711,7 @@ export default function BudgetsPage() {
                 setModalMode("create");
                 setEditingBudget(null);
               }}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -811,47 +793,47 @@ export default function BudgetsPage() {
             </>
           )}
         </div>
-      </main>
 
-      {/* Create/Edit Modal */}
-      {(modalMode === "create" || modalMode === "edit") && (
-        <BudgetModal
-          mode={modalMode}
-          budget={editingBudget}
-          categories={categories}
-          onSave={modalMode === "create" ? handleCreate : handleEdit}
-          onClose={() => {
-            setModalMode(null);
-            setEditingBudget(null);
-          }}
-        />
-      )}
+        {/* Create/Edit Modal */}
+        {(modalMode === "create" || modalMode === "edit") && (
+          <BudgetModal
+            mode={modalMode}
+            budget={editingBudget}
+            categories={categories}
+            onSave={modalMode === "create" ? handleCreate : handleEdit}
+            onClose={() => {
+              setModalMode(null);
+              setEditingBudget(null);
+            }}
+          />
+        )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl border border-border w-full max-w-sm p-6">
-            <h3 className="text-lg font-bold mb-2">Delete Budget</h3>
-            <p className="text-muted-foreground mb-6">
-              Are you sure you want to delete this budget? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
+        {/* Delete Confirmation Modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-card rounded-xl border border-border w-full max-w-sm p-6">
+              <h3 className="text-lg font-bold mb-2">Delete Budget</h3>
+              <p className="text-muted-foreground mb-6">
+                Are you sure you want to delete this budget? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(deleteConfirm)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </main>
+    </AppLayout>
   );
 }

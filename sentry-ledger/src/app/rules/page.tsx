@@ -15,6 +15,7 @@ import {
   testRule,
   type Rule,
 } from "@/lib/rules";
+import { AppLayout } from "@/app/components/ui";
 import type { ParsedTransaction } from "@/lib/csv";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -888,8 +889,8 @@ export default function RulesPage() {
   const totalCategories = new Set(rules.map((r) => r.category)).size;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <AppLayout>
+      <main className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Rule Manager</h1>
@@ -1057,7 +1058,7 @@ export default function RulesPage() {
             </li>
           </ul>
         </div>
-      </div>
+      </main>
 
       {/* Modal */}
       <RuleModal
@@ -1070,6 +1071,6 @@ export default function RulesPage() {
           setEditingRule(null);
         }}
       />
-    </div>
+    </AppLayout>
   );
 }

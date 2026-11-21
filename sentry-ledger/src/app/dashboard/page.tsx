@@ -13,6 +13,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   PieChart,
   Pie,
@@ -28,6 +29,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { AppLayout } from "@/app/components/ui";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -169,15 +171,15 @@ function SummaryCard({
   subtext?: string;
 }) {
   return (
-    <div className="p-5 bg-card rounded-xl border border-border">
+    <div className="p-4 md:p-5 bg-card rounded-xl border border-border hover:border-border/80 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-muted-foreground font-medium">{title}</p>
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color}`}>
+        <p className="text-sm text-muted-foreground font-medium truncate">{title}</p>
+        <div className={`w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
           {icon}
         </div>
       </div>
-      <p className="text-2xl font-bold">{value}</p>
-      {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
+      <p className="text-xl md:text-2xl font-bold truncate">{value}</p>
+      {subtext && <p className="text-xs text-muted-foreground mt-1 truncate">{subtext}</p>}
     </div>
   );
 }
@@ -186,7 +188,7 @@ function SpendingDonutChart({ data }: { data: CategoryBreakdown[] }) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <p>No spending data to display</p>
+        <p className="text-sm">No spending data to display</p>
       </div>
     );
   }
@@ -198,7 +200,7 @@ function SpendingDonutChart({ data }: { data: CategoryBreakdown[] }) {
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-6">
-      <div className="w-48 h-48 flex-shrink-0">
+      <div className="w-44 h-44 flex-shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -206,7 +208,7 @@ function SpendingDonutChart({ data }: { data: CategoryBreakdown[] }) {
               cx="50%"
               cy="50%"
               innerRadius={50}
-              outerRadius={80}
+              outerRadius={75}
               paddingAngle={3}
               dataKey="value"
               stroke="none"
@@ -225,24 +227,25 @@ function SpendingDonutChart({ data }: { data: CategoryBreakdown[] }) {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
                 color: "hsl(var(--foreground))",
+                fontSize: "12px",
               }}
             />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex-1 space-y-2 w-full">
+      <div className="flex-1 space-y-2 w-full max-h-56 overflow-y-auto">
         {data.slice(0, 8).map((item) => (
-          <div key={item.category} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div key={item.category} className="flex items-center justify-between py-1">
+            <div className="flex items-center gap-2 min-w-0">
               <div
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: getCategoryColor(item.category) }}
               />
-              <span className="text-sm truncate max-w-[140px]">{item.category}</span>
+              <span className="text-sm truncate">{item.category}</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
-              <span className="text-xs text-muted-foreground w-12 text-right">
+              <span className="text-xs text-muted-foreground w-10 text-right">
                 {item.percentage.toFixed(0)}%
               </span>
             </div>
@@ -257,7 +260,7 @@ function MonthlyTrendChart({ data }: { data: MonthlySpending[] }) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <p>No trend data to display</p>
+        <p className="text-sm">No trend data to display</p>
       </div>
     );
   }
@@ -291,6 +294,7 @@ function MonthlyTrendChart({ data }: { data: MonthlySpending[] }) {
             border: "1px solid hsl(var(--border))",
             borderRadius: "8px",
             color: "hsl(var(--foreground))",
+            fontSize: "12px",
           }}
         />
         <Legend />
@@ -312,7 +316,7 @@ function CashFlowChart({ data }: { data: CashFlowEntry[] }) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <p>No cash flow data to display</p>
+        <p className="text-sm">No cash flow data to display</p>
       </div>
     );
   }
@@ -343,6 +347,7 @@ function CashFlowChart({ data }: { data: CashFlowEntry[] }) {
             border: "1px solid hsl(var(--border))",
             borderRadius: "8px",
             color: "hsl(var(--foreground))",
+            fontSize: "12px",
           }}
         />
         <Legend />
@@ -358,33 +363,33 @@ function RecentTransactionsTable({ transactions }: { transactions: TransactionRo
   if (transactions.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-muted-foreground">
-        <p>No recent transactions</p>
+        <p className="text-sm">No recent transactions</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto -mx-6 px-6">
+      <table className="w-full text-sm min-w-[500px]">
         <thead>
           <tr className="border-b border-border">
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground whitespace-nowrap">Date</th>
             <th className="text-left py-3 px-4 font-medium text-muted-foreground">Description</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">Category</th>
-            <th className="text-right py-3 px-4 font-medium text-muted-foreground">Amount</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground whitespace-nowrap">Category</th>
+            <th className="text-right py-3 px-4 font-medium text-muted-foreground whitespace-nowrap">Amount</th>
           </tr>
         </thead>
         <tbody>
           {transactions.map((tx) => (
-            <tr key={tx.id} className="border-b border-border/50 hover:bg-muted/50">
-              <td className="py-2.5 px-4 text-muted-foreground">
+            <tr key={tx.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+              <td className="py-2.5 px-4 text-muted-foreground whitespace-nowrap">
                 {new Date(tx.date).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}
               </td>
-              <td className="py-2.5 px-4 font-medium">{tx.description}</td>
+              <td className="py-2.5 px-4 font-medium max-w-[250px] truncate">{tx.description}</td>
               <td className="py-2.5 px-4">
                 {tx.category ? (
                   <span
@@ -401,7 +406,7 @@ function RecentTransactionsTable({ transactions }: { transactions: TransactionRo
                 )}
               </td>
               <td
-                className={`py-2.5 px-4 text-right font-medium ${
+                className={`py-2.5 px-4 text-right font-medium whitespace-nowrap ${
                   tx.amount >= 0 ? "text-green-500" : "text-red-500"
                 }`}
               >
@@ -420,7 +425,7 @@ function AccountBalances({ accounts }: { accounts: { id: string; name: string; t
   if (accounts.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground">
-        <p>No accounts configured</p>
+        <p className="text-sm">No accounts configured</p>
       </div>
     );
   }
@@ -429,12 +434,12 @@ function AccountBalances({ accounts }: { accounts: { id: string; name: string; t
     <div className="space-y-3">
       {accounts.map((account) => (
         <div key={account.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-          <div>
-            <p className="font-medium text-sm">{account.name}</p>
+          <div className="min-w-0">
+            <p className="font-medium text-sm truncate">{account.name}</p>
             <p className="text-xs text-muted-foreground capitalize">{account.type}</p>
           </div>
           <p
-            className={`font-bold ${
+            className={`font-bold shrink-0 ${
               account.balance >= 0 ? "text-foreground" : "text-red-500"
             }`}
           >
@@ -450,7 +455,7 @@ function BudgetOverview({ budgets }: { budgets: { name: string; amount: number; 
   if (budgets.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground">
-        <p>No budgets set</p>
+        <p className="text-sm">No budgets set</p>
       </div>
     );
   }
@@ -460,8 +465,8 @@ function BudgetOverview({ budgets }: { budgets: { name: string; amount: number; 
       {budgets.map((budget) => (
         <div key={budget.categoryId} className="p-3 bg-muted/50 rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-sm">{budget.name}</span>
-            <span className="text-xs text-muted-foreground capitalize">{budget.period}</span>
+            <span className="font-medium text-sm truncate">{budget.name}</span>
+            <span className="text-xs text-muted-foreground capitalize shrink-0 ml-2">{budget.period}</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
             <div
@@ -508,63 +513,30 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <nav className="border-b border-border">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-xl font-bold">SentryLedger</h1>
-            <div className="flex items-center gap-6">
-              <a href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </a>
-              <a href="/import" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Import
-              </a>
-              <a href="/rules" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Rules
-              </a>
-              <a href="/budgets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Budgets
-              </a>
-            </div>
-          </div>
-        </nav>
-        <main className="container mx-auto px-4 py-16">
+      <AppLayout>
+        <div className="container mx-auto px-4 py-16">
           <div className="flex items-center justify-center h-64">
             <div className="flex flex-col items-center gap-4">
               <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
               <p className="text-muted-foreground">Loading dashboard...</p>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        <nav className="border-b border-border">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-xl font-bold">SentryLedger</h1>
-            <div className="flex items-center gap-6">
-              <a href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </a>
-              <a href="/import" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Import
-              </a>
-              <a href="/rules" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Rules
-              </a>
-              <a href="/budgets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Budgets
-              </a>
-            </div>
-          </div>
-        </nav>
-        <main className="container mx-auto px-4 py-16">
+      <AppLayout>
+        <div className="container mx-auto px-4 py-16">
           <div className="text-center py-12">
-            <p className="text-red-500 text-lg mb-4">{error}</p>
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-500 text-lg mb-4 font-medium">{error}</p>
             <button
               onClick={fetchData}
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
@@ -572,89 +544,52 @@ export default function DashboardPage() {
               Retry
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background">
-        <nav className="border-b border-border">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-xl font-bold">SentryLedger</h1>
-            <div className="flex items-center gap-6">
-              <a href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </a>
-              <a href="/import" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Import
-              </a>
-              <a href="/rules" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Rules
-              </a>
-              <a href="/budgets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Budgets
-              </a>
-            </div>
-          </div>
-        </nav>
-        <main className="container mx-auto px-4 py-16">
+      <AppLayout>
+        <div className="container mx-auto px-4 py-16">
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No data available</p>
+            <p className="text-muted-foreground">No data available. Import some transactions to get started.</p>
+            <Link href="/import" className="mt-4 inline-block px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+              Import Transactions
+            </Link>
           </div>
-        </main>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   const { summary, spendingByCategory, monthlyTrends, cashFlow, recentTransactions, accounts, budgets } = data;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">SentryLedger</h1>
-          <div className="flex items-center gap-6">
-            <a href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Home
-            </a>
-            <a href="/import" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Import
-            </a>
-            <a href="/rules" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Rules
-            </a>
-            <a href="/budgets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Budgets
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      <main className="container mx-auto px-4 py-8">
+    <AppLayout>
+      <main className="container mx-auto px-4 py-6 md:py-8">
         {/* Page header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>
-            <h2 className="text-2xl font-bold">Dashboard</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl md:text-3xl font-bold">Dashboard</h2>
+            <p className="text-muted-foreground text-sm md:text-base">
               Overview of your finances
             </p>
           </div>
           <button
             onClick={fetchData}
-            className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
+            className="px-3 md:px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4 mb-6 md:mb-8">
           <SummaryCard
             title="Total Income"
             value={formatCurrency(summary.totalIncome)}
@@ -690,7 +625,7 @@ export default function DashboardPage() {
                 />
               </svg>
             }
-            subtext={summary.netFlow >= 0 ? "Positive cash flow" : "Negative cash flow"}
+            subtext={summary.netFlow >= 0 ? "Positive" : "Negative"}
           />
           <SummaryCard
             title="Transactions"
@@ -714,23 +649,23 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Charts row 1: Spending by category + Cash flow */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Charts row 1: Spending by category + Monthly trends */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 md:mb-8">
           {/* Spending by category */}
-          <div className="p-6 bg-card rounded-xl border border-border">
+          <div className="p-5 md:p-6 bg-card rounded-xl border border-border">
             <h3 className="text-lg font-semibold mb-4">Spending by Category</h3>
             <SpendingDonutChart data={spendingByCategory} />
           </div>
 
           {/* Monthly trends */}
-          <div className="p-6 bg-card rounded-xl border border-border">
+          <div className="p-5 md:p-6 bg-card rounded-xl border border-border">
             <h3 className="text-lg font-semibold mb-4">Monthly Spending Trend</h3>
             <MonthlyTrendChart data={monthlyTrends} />
           </div>
         </div>
 
         {/* Cash flow chart */}
-        <div className="p-6 bg-card rounded-xl border border-border mb-8">
+        <div className="p-5 md:p-6 bg-card rounded-xl border border-border mb-6 md:mb-8">
           <h3 className="text-lg font-semibold mb-4">Cash Flow</h3>
           <CashFlowChart data={cashFlow} />
         </div>
@@ -738,24 +673,24 @@ export default function DashboardPage() {
         {/* Bottom row: Recent transactions + Accounts + Budgets */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent transactions */}
-          <div className="lg:col-span-2 p-6 bg-card rounded-xl border border-border">
+          <div className="lg:col-span-2 p-5 md:p-6 bg-card rounded-xl border border-border">
             <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
             <RecentTransactionsTable transactions={recentTransactions} />
           </div>
 
           {/* Accounts & Budgets */}
           <div className="space-y-6">
-            <div className="p-6 bg-card rounded-xl border border-border">
+            <div className="p-5 md:p-6 bg-card rounded-xl border border-border">
               <h3 className="text-lg font-semibold mb-4">Accounts</h3>
               <AccountBalances accounts={accounts} />
             </div>
-            <div className="p-6 bg-card rounded-xl border border-border">
+            <div className="p-5 md:p-6 bg-card rounded-xl border border-border">
               <h3 className="text-lg font-semibold mb-4">Budgets</h3>
               <BudgetOverview budgets={budgets} />
             </div>
           </div>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 }

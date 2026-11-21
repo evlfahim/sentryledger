@@ -17,6 +17,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
+import { AppLayout } from "@/app/components/ui";
 import {
   formatCurrency,
   formatPercent,
@@ -649,28 +650,29 @@ export default function SafeToSpendPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">Safe to Spend</h1>
-          <p className="text-muted-foreground">
-            Know exactly how much you can spend without worrying about bills or goals
-          </p>
+    <AppLayout>
+      <main className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">Safe to Spend</h1>
+            <p className="text-muted-foreground text-sm">
+              Know exactly how much you can spend without worrying about bills or goals
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setModalMode("create");
+              setEditingGoal(null);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            New Goal
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setModalMode("create");
-            setEditingGoal(null);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          New Goal
-        </button>
-      </div>
 
       {/* Safe-to-spend hero */}
       {safeResult && dailyResult && (
@@ -768,6 +770,7 @@ export default function SafeToSpendPage() {
           </button>
         </div>
       )}
-    </div>
+      </main>
+    </AppLayout>
   );
 }

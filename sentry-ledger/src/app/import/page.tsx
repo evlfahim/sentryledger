@@ -18,6 +18,7 @@ import {
   type CsvFile,
 } from "@/lib/csv";
 import { readCsvFile } from "@/lib/csv/parser";
+import { AppLayout } from "@/app/components/ui";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -63,30 +64,30 @@ function formatDate(date: Date | null): string {
 function StepIndicator({ currentStep }: { currentStep: ImportStep }) {
   const steps: { key: ImportStep; label: string }[] = [
     { key: "upload", label: "Upload" },
-    { key: "mapping", label: "Map Columns" },
+    { key: "mapping", label: "Map" },
     { key: "preview", label: "Preview" },
-    { key: "complete", label: "Complete" },
+    { key: "complete", label: "Done" },
   ];
 
   const stepOrder = steps.map((s) => s.key);
   const currentIndex = stepOrder.indexOf(currentStep);
 
   return (
-    <div className="flex items-center justify-center gap-2 mb-8">
+    <div className="flex items-center justify-center gap-2 md:gap-4 mb-8">
       {steps.map((step, i) => (
         <div key={step.key} className="flex items-center">
           <div className="flex flex-col items-center">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+              className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                 i <= currentIndex
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground"
               }`}
             >
               {i + 1}
             </div>
             <span
-              className={`text-xs mt-1 ${
+              className={`text-xs mt-1.5 hidden sm:block ${
                 i <= currentIndex
                   ? "text-foreground font-medium"
                   : "text-muted-foreground"
@@ -97,7 +98,7 @@ function StepIndicator({ currentStep }: { currentStep: ImportStep }) {
           </div>
           {i < steps.length - 1 && (
             <div
-              className={`w-12 h-0.5 mx-2 transition-colors ${
+              className={`w-8 md:w-12 h-0.5 mx-1 md:mx-2 transition-colors ${
                 i < currentIndex ? "bg-primary" : "bg-muted"
               }`}
             />
@@ -155,9 +156,9 @@ function FileUploadArea({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
+        className={`border-2 border-dashed rounded-xl p-8 md:p-12 text-center cursor-pointer transition-all ${
           isDragging
-            ? "border-primary bg-primary/5"
+            ? "border-primary bg-primary/5 scale-[1.02]"
             : "border-border hover:border-primary/50 hover:bg-muted/50"
         }`}
       >
@@ -179,12 +180,11 @@ function FileUploadArea({
         <h3 className="text-lg font-semibold mb-2">
           Drop your CSV file here
         </h3>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-sm">
           or click to browse your files
         </p>
-        <p className="text-sm text-muted-foreground">
-          Supports CSV files from Chase, Bank of America, Wells Fargo, and
-          more
+        <p className="text-xs text-muted-foreground">
+          Supports CSV files from Chase, Bank of America, Wells Fargo, and more
         </p>
         <input
           ref={fileInputRef}
@@ -230,7 +230,7 @@ function ColumnMappingWizard({
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Map Your Columns</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {parseResult.autoDetected
             ? `Detected ${parseResult.detectedBank} format. Review and adjust the column mapping below.`
             : "We couldn't auto-detect your bank format. Please map the columns manually."}
@@ -246,14 +246,14 @@ function ColumnMappingWizard({
 
       <div className="space-y-4 mb-8">
         {targetFields.map((field) => (
-          <div key={field.key} className="flex items-center gap-4">
-            <label className="w-32 text-sm font-medium text-muted-foreground">
+          <div key={field.key} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <label className="w-32 text-sm font-medium text-muted-foreground shrink-0">
               {field.label}
             </label>
             <select
               value={mapping[field.key] || ""}
               onChange={(e) => handleMappingChange(field.key, e.target.value)}
-              className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             >
               <option value="">— Select —</option>
               {csvFile.columns.map((col) => (
@@ -278,7 +278,7 @@ function ColumnMappingWizard({
           disabled={!allMapped}
           className={`px-6 py-2 rounded-lg font-medium transition-all ${
             allMapped
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
               : "bg-muted text-muted-foreground cursor-not-allowed"
           }`}
         >
@@ -332,12 +332,12 @@ function TransactionPreview({
     <div className="max-w-6xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Review Transactions</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Importing {preview.length} transactions
         </p>
 
         {/* Account selector */}
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
             Account:
           </label>
@@ -347,7 +347,7 @@ function TransactionPreview({
               const acc = accounts.find((a) => a.id === e.target.value);
               if (acc) onAccountChange(acc.id, acc.name);
             }}
-            className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
           >
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
@@ -370,42 +370,26 @@ function TransactionPreview({
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Total</p>
-          <p className="text-xl font-bold">{preview.length}</p>
-        </div>
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Debits</p>
-          <p className="text-xl font-bold text-red-500">
-            {formatAmount(totalDebits)}
-          </p>
-        </div>
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Credits</p>
-          <p className="text-xl font-bold text-green-500">
-            {formatAmount(totalCredits)}
-          </p>
-        </div>
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Duplicates</p>
-          <p className="text-xl font-bold text-amber-500">
-            {internalDuplicates.length + existingDuplicates.length}
-          </p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+        <SummaryStat label="Total" value={preview.length.toString()} />
+        <SummaryStat label="Debits" value={formatAmount(totalDebits)} color="text-red-500" />
+        <SummaryStat label="Credits" value={formatAmount(totalCredits)} color="text-green-500" />
+        <SummaryStat label="Duplicates" value={(internalDuplicates.length + existingDuplicates.length).toString()} color="text-amber-500" />
       </div>
 
       {/* Duplicates warning */}
       {(internalDuplicates.length > 0 || existingDuplicates.length > 0) && (
         <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-          <h4 className="font-semibold text-amber-600 dark:text-amber-400 mb-2">
+          <h4 className="font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
             Duplicate Transactions Detected
           </h4>
           {existingDuplicates.length > 0 && (
             <div className="mb-2">
               <p className="text-sm text-amber-600 dark:text-amber-400">
-                {existingDuplicates.length} transaction(s) already exist in your
-                database:
+                {existingDuplicates.length} transaction(s) already exist in your database:
               </p>
               <ul className="mt-1 text-sm text-muted-foreground ml-4 list-disc">
                 {existingDuplicates.map((dup, i) => (
@@ -442,19 +426,19 @@ function TransactionPreview({
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground whitespace-nowrap">
                   Date
                 </th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">
                   Description
                 </th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground whitespace-nowrap">
                   Amount
                 </th>
-                <th className="text-center px-4 py-3 font-medium text-muted-foreground">
+                <th className="text-center px-4 py-3 font-medium text-muted-foreground whitespace-nowrap">
                   Type
                 </th>
-                <th className="text-center px-4 py-3 font-medium text-muted-foreground">
+                <th className="text-center px-4 py-3 font-medium text-muted-foreground whitespace-nowrap">
                   Status
                 </th>
               </tr>
@@ -476,12 +460,12 @@ function TransactionPreview({
                         : "bg-muted/20"
                     }`}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       {formatDate(tx.dateValue)}
                     </td>
-                    <td className="px-4 py-3">{tx.description}</td>
+                    <td className="px-4 py-3 max-w-[250px] truncate">{tx.description}</td>
                     <td
-                      className={`px-4 py-3 text-right font-medium ${
+                      className={`px-4 py-3 text-right font-medium whitespace-nowrap ${
                         tx.amountValue < 0
                           ? "text-red-500"
                           : tx.amountValue > 0
@@ -545,11 +529,20 @@ function TransactionPreview({
         </button>
         <button
           onClick={onCommit}
-          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
         >
           Import {preview.length} Transactions
         </button>
       </div>
+    </div>
+  );
+}
+
+function SummaryStat({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div className="p-4 bg-card rounded-lg border border-border">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={`text-xl font-bold ${color || ""}`}>{value}</p>
     </div>
   );
 }
@@ -584,33 +577,20 @@ function ImportComplete({
           </svg>
         </div>
         <h2 className="text-2xl font-bold mb-2">Import Complete!</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Your transactions have been successfully imported.
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Imported</p>
-          <p className="text-2xl font-bold text-green-500">
-            {importedCount}
-          </p>
-        </div>
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Duplicates</p>
-          <p className="text-2xl font-bold text-amber-500">
-            {duplicateCount}
-          </p>
-        </div>
-        <div className="p-4 bg-card rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">Failed</p>
-          <p className="text-2xl font-bold text-red-500">{failedCount}</p>
-        </div>
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
+        <SummaryStat label="Imported" value={importedCount.toString()} color="text-green-500" />
+        <SummaryStat label="Duplicates" value={duplicateCount.toString()} color="text-amber-500" />
+        <SummaryStat label="Failed" value={failedCount.toString()} color="text-red-500" />
       </div>
 
       <button
         onClick={onNewImport}
-        className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+        className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
       >
         Import Another File
       </button>
@@ -823,11 +803,11 @@ export default function ImportPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <AppLayout>
+      <main className="container mx-auto px-4 py-6 md:py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Import Transactions</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1">Import Transactions</h1>
+          <p className="text-muted-foreground text-sm">
             Import bank CSV files and categorize your spending
           </p>
         </div>
@@ -836,7 +816,7 @@ export default function ImportPage() {
 
         {error && (
           <div className="max-w-2xl mx-auto mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
           </div>
         )}
 
@@ -876,7 +856,7 @@ export default function ImportPage() {
             onNewImport={handleNewImport}
           />
         )}
-      </div>
-    </div>
+      </main>
+    </AppLayout>
   );
 }
