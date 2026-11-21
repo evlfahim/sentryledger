@@ -73,6 +73,9 @@ function initSchema(db: Database.Database): void {
       category TEXT NOT NULL,
       priority INTEGER NOT NULL DEFAULT 0,
       is_active INTEGER NOT NULL DEFAULT 1,
+      min_amount REAL,
+      max_amount REAL,
+      amount_direction TEXT DEFAULT 'any',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -84,6 +87,34 @@ function initSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_rules_priority ON rules(priority);
     CREATE INDEX IF NOT EXISTS idx_rules_is_active ON rules(is_active);
   `);
+
+  // Schema migration: add new columns to rules table if they don't exist
+  migrateSchema(db);
+}
+
+/**
+ * Migrate the rules table schema to include new columns.
+ * SQLite doesn't support ALTER TABLE IF NOT EXISTS, so we check and add manually.
+ */
+function migrateSchema(db: Database.Database): void {
+  try {
+    // Check if min_amount column exists by querying the table
+    const pragmaResult = db.prepare("PRAGMA table_info(rules)").all() as { name: string }[];
+    const columnNames = pragmaResult.map((c) => c.name);
+
+    if (!columnNames.includes("min_amount")) {
+      db.exec("ALTER TABLE rules ADD COLUMN min_amount REAL");
+    }
+    if (!columnNames.includes("max_amount")) {
+      db.exec("ALTER TABLE rules ADD COLUMN max_amount REAL");
+    }
+    if (!columnNames.includes("amount_direction")) {
+      db.exec("ALTER TABLE rules ADD COLUMN amount_direction TEXT DEFAULT 'any'");
+    }
+  } catch {
+    // If ALTER TABLE fails (e.g., column already exists despite pragma check),
+    // silently ignore — the table is fine.
+  }
 }
 
 // ─── Account Operations ───────────────────────────────────────────────────────
@@ -334,4 +365,186 @@ export function closeDb(): void {
     db.close();
     db = null;
   }
+}
+
+// ─── Rule Operations ──────────────────────────────────────────────────────────
+
+export interface RuleRow {
+  id: string;
+  name: string;
+  description: string;
+  regex: string;
+  category: string;
+  priority: number;
+  is_active: number;
+  min_amount: number | null;
+  max_amount: number | null;
+  amount_direction: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Get all rules, ordered by priority descending.
+ */
+export function getRules(): RuleRow[] {
+  const stmt = getDb().prepare(
+    "SELECT * FROM rules ORDER BY priority DESC, created_at ASC"
+  );
+  return stmt.all() as RuleRow[];
+}
+
+/**
+ * Get a single rule by ID.
+ */
+export function getRule(id: string): RuleRow | undefined {
+  const stmt = getDb().prepare("SELECT * FROM rules WHERE id = ?");
+  return stmt.get(id) as RuleRow | undefined;
+}
+
+/**
+ * Create a new rule.
+ */
+export function createRule(
+  name: string,
+  regex: string,
+  category: string,
+  description: string = "",
+  priority: number = 0,
+  isActive: boolean = true,
+  minAmount: number | null = null,
+  maxAmount: number | null = null,
+  amountDirection: string = "any"
+): string {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const stmt = getDb().prepare(
+    `INSERT INTO rules (id, name, description, regex, category, priority, is_active, min_amount, max_amount, amount_direction, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  stmt.run(
+    id,
+    name,
+    description,
+    regex,
+    category,
+    priority,
+    isActive ? 1 : 0,
+    minAmount,
+    maxAmount,
+    amountDirection,
+    now,
+    now
+  );
+  return id;
+}
+
+/**
+ * Update an existing rule.
+ */
+export function updateRule(
+  id: string,
+  updates: {
+    name?: string;
+    description?: string;
+    regex?: string;
+    category?: string;
+    priority?: number;
+    isActive?: boolean;
+    minAmount?: number | null;
+    maxAmount?: number | null;
+    amountDirection?: string;
+  }
+): void {
+  const fields: string[] = [];
+  const values: any[] = [];
+
+  if (updates.name !== undefined) {
+    fields.push("name = ?");
+    values.push(updates.name);
+  }
+  if (updates.description !== undefined) {
+    fields.push("description = ?");
+    values.push(updates.description);
+  }
+  if (updates.regex !== undefined) {
+    fields.push("regex = ?");
+    values.push(updates.regex);
+  }
+  if (updates.category !== undefined) {
+    fields.push("category = ?");
+    values.push(updates.category);
+  }
+  if (updates.priority !== undefined) {
+    fields.push("priority = ?");
+    values.push(updates.priority);
+  }
+  if (updates.isActive !== undefined) {
+    fields.push("is_active = ?");
+    values.push(updates.isActive ? 1 : 0);
+  }
+  if (updates.minAmount !== undefined) {
+    fields.push("min_amount = ?");
+    values.push(updates.minAmount);
+  }
+  if (updates.maxAmount !== undefined) {
+    fields.push("max_amount = ?");
+    values.push(updates.maxAmount);
+  }
+  if (updates.amountDirection !== undefined) {
+    fields.push("amount_direction = ?");
+    values.push(updates.amountDirection);
+  }
+
+  if (fields.length === 0) return;
+
+  fields.push("updated_at = ?");
+  values.push(new Date().toISOString());
+  values.push(id);
+
+  const stmt = getDb().prepare(
+    `UPDATE rules SET ${fields.join(", ")} WHERE id = ?`
+  );
+  stmt.run(...values);
+}
+
+/**
+ * Delete a rule by ID.
+ */
+export function deleteRule(id: string): void {
+  const stmt = getDb().prepare("DELETE FROM rules WHERE id = ?");
+  stmt.run(id);
+}
+
+/**
+ * Reorder rules by setting their priorities.
+ * Expects an array of { id, priority } objects.
+ */
+export function reorderRules(updates: { id: string; priority: number }[]): void {
+  const db = getDb();
+  const stmt = db.prepare(
+    "UPDATE rules SET priority = ?, updated_at = ? WHERE id = ?"
+  );
+  const now = new Date().toISOString();
+  const batch = db.transaction((items) => {
+    for (const item of items) {
+      stmt.run(item.priority, now, item.id);
+    }
+  });
+  batch(updates);
+}
+
+/**
+ * Get all unique categories from rules.
+ */
+export function getCategories(): string[] {
+  const stmt = getDb().prepare("SELECT DISTINCT category FROM rules ORDER BY category");
+  return (stmt.all() as { category: string }[]).map((r) => r.category);
+}
+
+/**
+ * Clear all rules (for testing).
+ */
+export function clearRules(): void {
+  getDb().exec("DELETE FROM rules");
 }

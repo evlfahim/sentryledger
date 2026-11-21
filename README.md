@@ -97,11 +97,15 @@ sentry-ledger/
 ├── src/
 │   ├── app/              # Next.js App Router pages
 │   │   ├── layout.tsx    # Root layout with Tailwind theme
-│   │   ├── page.tsx      # Home page
+│   │   ├── page.tsx      # Home page with navigation
 │   │   ├── import/       # Import page with CSV upload, mapping, preview
 │   │   │   └── page.tsx  # Full import flow UI
+│   │   ├── rules/        # Rule management page
+│   │   │   └── page.tsx  # CRUD UI for categorization rules
 │   │   ├── api/          # API routes
-│   │   │   └── import/   # Transaction import API
+│   │   │   ├── import/   # Transaction import API
+│   │   │   │   └── route.ts
+│   │   │   └── rules/    # Rule management API
 │   │   │       └── route.ts
 │   │   └── globals.css   # Tailwind CSS with dark mode
 │   ├── components/       # Reusable UI components
@@ -111,8 +115,11 @@ sentry-ledger/
 │       │   ├── bank-profiles.ts  # 10 known bank formats
 │       │   ├── parser.ts # Date/amount parsing, column mapping
 │       │   └── index.ts  # Barrel export
-│       └── import/       # Import database utilities
-│           └── db.ts     # SQLite operations (server-only)
+│       ├── import/       # Import database utilities
+│       │   └── db.ts     # SQLite operations (server-only)
+│       └── rules/        # Rule engine
+│           ├── engine.ts # Rule matching, validation, default rules
+│           └── index.ts  # Barrel export
 ├── src-tauri/            # Tauri Rust backend
 │   ├── src/              # Rust source code
 │   ├── tauri.conf.json   # Tauri configuration
@@ -120,6 +127,8 @@ sentry-ledger/
 ├── tests/                # Vitest test files
 │   ├── csv-parser.test.ts  # CSV parser tests (47 tests)
 │   ├── import-db.test.ts   # Import DB tests (20 tests)
+│   ├── rule-engine.test.ts # Rule engine tests (62 tests)
+│   ├── rule-db.test.ts     # Rule DB CRUD tests (35 tests)
 │   ├── setup.ts            # Test setup
 │   └── setup.test.ts       # Setup verification
 ├── public/               # Static assets
@@ -154,6 +163,12 @@ sentry-ledger/
 ```
 
 The app runs entirely offline. All data is stored in a local SQLite database. No external API calls are made.
+
+### Pages
+
+- **`/`** — Home page with navigation to Import and Rules
+- **`/import`** — CSV import flow: upload → column mapping → preview → commit
+- **`/rules`** — Rule management: create, edit, reorder, test, and delete categorization rules
 
 ## License
 
