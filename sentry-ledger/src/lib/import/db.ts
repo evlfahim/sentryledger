@@ -80,12 +80,23 @@ function initSchema(db: Database.Database): void {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS budgets (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      category_id TEXT NOT NULL,
+      amount REAL NOT NULL,
+      period TEXT NOT NULL DEFAULT 'monthly',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_transactions_account_date ON transactions(account_id, date);
     CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
     CREATE INDEX IF NOT EXISTS idx_transactions_is_bill ON transactions(is_bill);
     CREATE INDEX IF NOT EXISTS idx_transactions_is_duplicate ON transactions(is_duplicate);
     CREATE INDEX IF NOT EXISTS idx_rules_priority ON rules(priority);
     CREATE INDEX IF NOT EXISTS idx_rules_is_active ON rules(is_active);
+    CREATE INDEX IF NOT EXISTS idx_budgets_category_id ON budgets(category_id);
   `);
 
   // Schema migration: add new columns to rules table if they don't exist
@@ -302,6 +313,19 @@ export function getTransactions(
 }
 
 /**
+ * Get all transactions across all accounts, with pagination.
+ */
+export function getAllTransactions(
+  limit: number = 10000,
+  offset: number = 0
+): TransactionRow[] {
+  const stmt = getDb().prepare(
+    "SELECT * FROM transactions ORDER BY date DESC LIMIT ? OFFSET ?"
+  );
+  return stmt.all(limit, offset) as TransactionRow[];
+}
+
+/**
  * Get total transaction count for an account.
  */
 export function getTransactionCount(accountId: string): number {
@@ -354,6 +378,7 @@ export function clearTransactions(): void {
 export function clearAll(): void {
   getDb().exec("DELETE FROM transactions");
   getDb().exec("DELETE FROM rules");
+  getDb().exec("DELETE FROM budgets");
   getDb().exec("DELETE FROM accounts");
 }
 
@@ -547,4 +572,112 @@ export function getCategories(): string[] {
  */
 export function clearRules(): void {
   getDb().exec("DELETE FROM rules");
+}
+
+// ─── Budget Operations ────────────────────────────────────────────────────────
+
+export interface BudgetRow {
+  id: string;
+  name: string;
+  category_id: string;
+  amount: number;
+  period: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Get all budgets, ordered by name.
+ */
+export function getBudgets(): BudgetRow[] {
+  const stmt = getDb().prepare(
+    "SELECT * FROM budgets ORDER BY name"
+  );
+  return stmt.all() as BudgetRow[];
+}
+
+/**
+ * Get a single budget by ID.
+ */
+export function getBudget(id: string): BudgetRow | undefined {
+  const stmt = getDb().prepare("SELECT * FROM budgets WHERE id = ?");
+  return stmt.get(id) as BudgetRow | undefined;
+}
+
+/**
+ * Create a new budget.
+ */
+export function createBudget(
+  name: string,
+  categoryId: string,
+  amount: number,
+  period: string = "monthly"
+): string {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const stmt = getDb().prepare(
+    `INSERT INTO budgets (id, name, category_id, amount, period, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  );
+  stmt.run(id, name, categoryId, amount, period, now, now);
+  return id;
+}
+
+/**
+ * Update an existing budget.
+ */
+export function updateBudget(
+  id: string,
+  updates: {
+    name?: string;
+    categoryId?: string;
+    amount?: number;
+    period?: string;
+  }
+): void {
+  const fields: string[] = [];
+  const values: any[] = [];
+
+  if (updates.name !== undefined) {
+    fields.push("name = ?");
+    values.push(updates.name);
+  }
+  if (updates.categoryId !== undefined) {
+    fields.push("category_id = ?");
+    values.push(updates.categoryId);
+  }
+  if (updates.amount !== undefined) {
+    fields.push("amount = ?");
+    values.push(updates.amount);
+  }
+  if (updates.period !== undefined) {
+    fields.push("period = ?");
+    values.push(updates.period);
+  }
+
+  if (fields.length === 0) return;
+
+  fields.push("updated_at = ?");
+  values.push(new Date().toISOString());
+  values.push(id);
+
+  const stmt = getDb().prepare(
+    `UPDATE budgets SET ${fields.join(", ")} WHERE id = ?`
+  );
+  stmt.run(...values);
+}
+
+/**
+ * Delete a budget by ID.
+ */
+export function deleteBudget(id: string): void {
+  const stmt = getDb().prepare("DELETE FROM budgets WHERE id = ?");
+  stmt.run(id);
+}
+
+/**
+ * Clear all budgets (for testing).
+ */
+export function clearBudgets(): void {
+  getDb().exec("DELETE FROM budgets");
 }

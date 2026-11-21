@@ -102,10 +102,14 @@ sentry-ledger/
 │   │   │   └── page.tsx  # Full import flow UI
 │   │   ├── rules/        # Rule management page
 │   │   │   └── page.tsx  # CRUD UI for categorization rules
+│   │   ├── budgets/      # Budget management page
+│   │   │   └── page.tsx  # Budget creation, progress tracking, alerts
 │   │   ├── api/          # API routes
 │   │   │   ├── import/   # Transaction import API
 │   │   │   │   └── route.ts
-│   │   │   └── rules/    # Rule management API
+│   │   │   ├── rules/    # Rule management API
+│   │   │   │   └── route.ts
+│   │   │   └── budgets/  # Budget management API
 │   │   │       └── route.ts
 │   │   └── globals.css   # Tailwind CSS with dark mode
 │   ├── components/       # Reusable UI components
@@ -117,20 +121,24 @@ sentry-ledger/
 │       │   └── index.ts  # Barrel export
 │       ├── import/       # Import database utilities
 │       │   └── db.ts     # SQLite operations (server-only)
-│       └── rules/        # Rule engine
-│           ├── engine.ts # Rule matching, validation, default rules
-│           └── index.ts  # Barrel export
+│       ├── rules/        # Rule engine
+│       │   ├── engine.ts # Rule matching, validation, default rules
+│       │   └── index.ts  # Barrel export
+│       └── budgets/      # Budget calculation engine
+│           └── engine.ts # Budget progress, alerts, category breakdown
 ├── src-tauri/            # Tauri Rust backend
 │   ├── src/              # Rust source code
 │   ├── tauri.conf.json   # Tauri configuration
 │   └── capabilities/     # App security capabilities
 ├── tests/                # Vitest test files
-│   ├── csv-parser.test.ts  # CSV parser tests (47 tests)
-│   ├── import-db.test.ts   # Import DB tests (20 tests)
-│   ├── rule-engine.test.ts # Rule engine tests (62 tests)
-│   ├── rule-db.test.ts     # Rule DB CRUD tests (35 tests)
-│   ├── setup.ts            # Test setup
-│   └── setup.test.ts       # Setup verification
+│   ├── csv-parser.test.ts    # CSV parser tests (47 tests)
+│   ├── import-db.test.ts     # Import DB tests (20 tests)
+│   ├── rule-engine.test.ts   # Rule engine tests (62 tests)
+│   ├── rule-db.test.ts       # Rule DB CRUD tests (35 tests)
+│   ├── budget-engine.test.ts # Budget engine tests (29 tests)
+│   ├── budget-db.test.ts     # Budget DB CRUD tests (18 tests)
+│   ├── setup.ts              # Test setup
+│   └── setup.test.ts         # Setup verification
 ├── public/               # Static assets
 ├── package.json
 ├── tsconfig.json
@@ -149,7 +157,7 @@ sentry-ledger/
 │  │         Next.js Frontend              │  │
 │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ │  │
 │  │  │  Import │ │  Rules  │ │  Budget │ │  │
-│  │  │  Page   │ │  Editor │ │  Chart  │ │  │
+│  │  │  Page   │ │  Editor │ │  Tracker│ │  │
 │  │  └─────────┘ └─────────┘ └─────────┘ │  │
 │  └───────────────────────────────────────┘  │
 │  ┌───────────────────────────────────────┐  │
@@ -166,9 +174,37 @@ The app runs entirely offline. All data is stored in a local SQLite database. No
 
 ### Pages
 
-- **`/`** — Home page with navigation to Import and Rules
+- **`/`** — Home page with navigation to Import, Rules, and Budgets
 - **`/import`** — CSV import flow: upload → column mapping → preview → commit
 - **`/rules`** — Rule management: create, edit, reorder, test, and delete categorization rules
+- **`/budgets`** — Budget management: create budgets by category, track spending progress, view alerts for over-budget categories
+
+### Budget System
+
+The budget system tracks spending by category against user-defined limits:
+
+1. **Create a budget** — Set a name, category, amount, and period (weekly/monthly/yearly)
+2. **Track progress** — Real-time progress bars show spent vs. budgeted amounts
+3. **Alerts** — Warnings at 80% usage, over-budget alerts when exceeded
+4. **Category breakdown** — Aggregate spending across all categories with sorting by spend amount
+
+### API Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/import` | POST | Import transactions from CSV |
+| `/api/rules` | GET | List all rules |
+| `/api/rules` | POST | Create a new rule |
+| `/api/rules` | PUT | Update an existing rule |
+| `/api/rules` | DELETE | Delete a rule |
+| `/api/rules?action=categories` | GET | Get unique categories |
+| `/api/rules?action=test` | GET | Test a rule against sample transactions |
+| `/api/budgets` | GET | List all budgets |
+| `/api/budgets` | POST | Create a new budget |
+| `/api/budgets` | PUT | Update an existing budget |
+| `/api/budgets` | DELETE | Delete a budget |
+| `/api/budgets?action=calculate` | GET | Calculate budget progress across all budgets |
+| `/api/budgets?action=categories` | GET | Get unique categories |
 
 ## License
 
