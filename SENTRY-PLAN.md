@@ -31,7 +31,7 @@ TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, 
 - [x] 2. Define Prisma schema for accounts, transactions, rules, and budgets, then run migration.
 - [x] 3. Implement CSV parser with auto-detection of bank formats and column mapping wizard.
 - [x] 4. Build import page with transaction preview, duplicate checking, and commit action.
-- [ ] 5. Create rule engine that applies categorized rules to transactions based on description and amount.
+- [x] 5. Create rule engine that applies categorized rules to transactions based on description and amount.
 - [ ] 6. Develop rule management UI allowing users to add, edit, reorder, and test rules.
 - [ ] 7. Implement budget creation form and calculate remaining balance against imported transactions.
 - [ ] 8. Add dashboard with Recharts visualizations for monthly spending breakdown and trends.
