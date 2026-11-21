@@ -38,7 +38,7 @@ TypeScript, Next.js, Tauri, SQLite (Prisma), Tailwind CSS, Recharts, Shadcn/UI, 
 - [x] 9. Integrate safe-to-spend logic that subtracts bills and goals from available income.
 - [x] 10. Polish UI with Shadcn components, dark mode toggle, and responsive design.
 - [x] 11. Add export functionality to download transactions as CSV and dashboard as PDF.
-- [ ] 12. Fix vitest.config.ts to disable fileParallelism and verify the suite runs without parallel database conflicts.
+- [x] 12. Fix vitest.config.ts to disable fileParallelism and verify the suite runs without parallel database conflicts.
 - [ ] 13. Fix parser.ts createWizardState to only use default columns that exist in the file, then run parser tests.
 - [ ] 14. Fix budget-engine.test.ts date range boundary and add missing test cases, then run budget tests.
 - [ ] 15. Run the full Vitest suite to verify all tests pass.
